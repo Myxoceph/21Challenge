@@ -1,24 +1,33 @@
-/// DAY 2: Primitive Types & Simple Functions
-/// 
-/// Today you will:
-/// 1. Practice with primitive types (u64, bool)
-/// 2. Write your first function
-/// 3. Write your first test
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   day_02                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abakirca <ahmetbakircan@gmail.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*   Created: 2025/12/25 19:01:55 by abakirca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-module challenge::day_02 {
-    #[test_only]
-    use std::unit_test::assert_eq;
+module challenge::day_02
+{
+	#[test_only]
+	use std::unit_test::assert_eq;
 
-    // TODO: Write a function called 'sum' that takes two u64 numbers
-    // and returns their sum
-    // public fun sum(a: u64, b: u64): u64 {
-    //     // Your code here
-    // }
+	#[test]
+	fun test_sum()
+	{
+		let x: u64 = 31;
+		let y: u64 = 69;
+		let sumval: u64;
 
-    // TODO: Write a test function that checks sum(1, 2) == 3
-    // #[test]
-    // fun test_sum() {
-    //     // Your code here
-    // }
+		sumval = sum(x, y);
+		assert_eq!(sumval, 100);
+	}
+
+	public fun sum(x: u64, y: u64): u64
+	{
+		x + y
+	}
 }
-
