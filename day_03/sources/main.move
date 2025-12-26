@@ -1,25 +1,80 @@
-/// DAY 3: Structs (Habit Model Skeleton)
-/// 
-/// Today you will:
-/// 1. Learn about structs
-/// 2. Create a Habit struct
-/// 3. Write a constructor function
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   day_03                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abakirca <ahmetbakircan@gmail.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*   Created: 2025/12/26 19:04:16 by abakirca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-module challenge::day_03 {
-    use std::vector;
+module challenge::day_03
+{
+	#[test_only]
+	use std::unit_test::assert_eq;
 
-    // TODO: Define a struct called 'Habit' with:
-    // - name: vector<u8> (we'll use String later)
-    // - completed: bool
-    // Add 'copy' and 'drop' abilities
-    // public struct Habit has copy, drop {
-    //     // Your fields here
-    // }
+	public struct Habit has copy, drop
+	{
+		name: vector<u8>,
+		completed: bool
+	}
 
-    // TODO: Write a constructor function 'new_habit'
-    // that takes a name (vector<u8>) and returns a Habit
-    // public fun new_habit(name: vector<u8>): Habit {
-    //     // Your code here
-    // }
+	public fun new_habit(name: vector<u8>): Habit
+	{
+		Habit
+		{
+			name,
+			completed: false,
+		}
+	}
+
+	#[test]
+	public fun test_struct_with_abilities()
+	{
+		let habit_name: vector<u8> = b"Clean coding";
+		let habit: Habit = new_habit(habit_name);
+		let habit2 = habit;
+
+		assert_eq!(habit.name, b"Clean coding");
+		assert_eq!(habit.completed, false);
+		assert_eq!(habit2.name, b"Clean coding");
+		assert_eq!(habit2.completed, false);
+	}
+
+	// Cannot do the tests below because the struct does not have copy ability
+	// It just gives error: use of moved value: `habit`
+	// Also, since the test struct doesnt have drop ability,
+	// compiler gives warning: value assigned to `habit` is never dropped
+
+	/*
+	#[test_only]
+	public struct Habit_test_wo_abilities
+	{
+		name: vector<u8>,
+		completed: bool
+	}
+
+	#[test_only]
+	public fun new_habit_test_wo_abilities(name: vector<u8>): Habit_test_wo_abilities
+	{
+		Habit_test_wo_abilities
+		{
+			name,
+			completed: false,
+		}
+	}
+
+	#[test]
+	public fun test_struct_without_abilities()
+	{
+		let habit_name: vector<u8> = b"Clean coding";
+		let habit: Habit_test_wo_abilities = new_habit_test_wo_abilities(habit_name);
+		let habit2 = habit;
+
+		assert_eq!(habit.name, b"Clean coding");
+		assert_eq!(habit.completed, false);
+	}
+	*/
 }
-
