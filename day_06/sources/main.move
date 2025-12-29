@@ -1,72 +1,101 @@
-/// DAY 6: String Type for Habit Names
-/// 
-/// Today you will:
-/// 1. Learn about the String type
-/// 2. Convert vector<u8> to String
-/// 3. Update Habit to use String instead of vector<u8>
-///
-/// Note: You can copy code from day_05/sources/solution.move if needed
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   day_06                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abakirca <ahmetbakircan@gmail.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*   Created: 2025/12/29 22:19:14 by abakirca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-module challenge::day_06 {
-    use std::vector;
-    use std::string::{Self, String};
+module challenge::day_06
+{
+	use std::string::{String, utf8};
 
-    // Copy from day_05: Habit struct (will be updated to use String)
-    public struct Habit has copy, drop {
-        name: vector<u8>,  // TODO: Change this to String
-        completed: bool,
-    }
+	#[test_only]
+	use std::unit_test::assert_eq;
 
-    public fun new_habit(name: vector<u8>): Habit {
-        Habit {
-            name,
-            completed: false,
-        }
-    }
+	public struct Habit has copy, drop
+	{
+		name: String,
+		completed: bool,
+	}
 
-    // Copy from day_05: HabitList struct
-    public struct HabitList has drop {
-        habits: vector<Habit>,
-    }
+	public fun new_habit(name: String): Habit
+	{
+		Habit
+		{
+			name,
+			completed: false,
+		}
+	}
 
-    public fun empty_list(): HabitList {
-        HabitList {
-            habits: vector::empty(),
-        }
-    }
+	public struct HabitList has drop
+	{
+		habits: vector<Habit>,
+	}
 
-    public fun add_habit(list: &mut HabitList, habit: Habit) {
-        vector::push_back(&mut list.habits, habit);
-    }
+	public fun empty_list(): HabitList
+	{
+		HabitList
+		{
+			habits: vector::empty<Habit>(),
+		}
+	}
 
-    public fun complete_habit(list: &mut HabitList, index: u64) {
-        let len = vector::length(&list.habits);
-        if (index < len) {
-            let habit = vector::borrow_mut(&mut list.habits, index);
-            habit.completed = true;
-        }
-    }
+	public fun add_habit(list: &mut HabitList, habit: Habit)
+	{
+		vector::push_back(&mut list.habits, habit);
+	}
 
-    // TODO: Update Habit struct to use String instead of vector<u8>
-    // Note: String is the preferred type for text data in Move.
-    // You can use String directly - no need to work with vector<u8>!
-    // public struct Habit has copy, drop {
-    //     name: String,  // Changed from vector<u8> - String is better!
-    //     completed: bool,
-    // }
+	public fun remove_habit_last(list: &mut HabitList)
+	{
+		vector::pop_back(&mut list.habits);
+	}
 
-    // TODO: Update new_habit to accept String
-    // public fun new_habit(name: String): Habit {
-    //     // Your code here
-    // }
+	public fun complete_habit(list: &mut HabitList, index: u64)
+	{
+		let length = vector::length(&list.habits);
+		if (index < length)
+		{
+			let habit_ref = vector::borrow_mut(&mut list.habits, index);
+			habit_ref.completed = true;
+		}
+		else
+		{
+			// Handle error: index out of bounds
+			// For now, we will do nothing.
+		}
+	}
 
-    // TODO: Write a helper function 'make_habit' that:
-    // - Takes name_bytes: vector<u8> (by value, not reference)
-    // - Converts it to String using string::utf8()
-    // - Creates and returns a Habit
-    // public fun make_habit(name_bytes: vector<u8>): Habit {
-    //     // Your code here
-    //     // Hint: let name = string::utf8(name_bytes);
-    // }
+	public fun make_habit(name_bytes: vector<u8>): Habit
+	{
+		let name: String = utf8(name_bytes);
+		new_habit(name)
+	}
+
+	#[test]
+	public fun test_make_habit()
+	{
+		let habit: Habit = make_habit(b"Read a book");
+		assert_eq!(habit.name, utf8(b"Read a book"));
+		assert_eq!(habit.completed, false);
+	}
+
+	#[test]
+	public fun test_habit_list()
+	{
+		let mut habit_list: HabitList = empty_list();
+		let habit1: Habit = new_habit(utf8(b"Learning Move"));
+		let habit2: Habit = new_habit(utf8(b"Writing tests"));
+
+		add_habit(&mut habit_list, move habit1);
+		add_habit(&mut habit_list, move habit2);
+
+		complete_habit(&mut habit_list, 0);
+		assert_eq!(vector::borrow(&habit_list.habits, 0).completed, true);
+		assert_eq!(vector::borrow(&habit_list.habits, 1).completed, false);
+	}
 }
-
