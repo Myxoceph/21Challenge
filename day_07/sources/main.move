@@ -1,75 +1,106 @@
-/// DAY 7: Unit Tests for Habit Tracker
-///
-/// Today you will:
-/// 1. Learn how to write tests in Move
-/// 2. Write tests for your habit tracker
-/// 3. Use assert! macro
-///
-/// Note: You can copy code from day_06/sources/solution.move if needed
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   day_07                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abakirca <ahmetbakircan@gmail.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*   Created: 2025/12/30 23:47:28 by abakirca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-module challenge::day_07 {
-    use std::vector;
-    use std::string::{Self, String};
+module challenge::day_07
+{
+	use std::string::{String, utf8};
 
-    // Copy from day_06: Habit struct with String
-    public struct Habit has copy, drop {
-        name: String,
-        completed: bool,
-    }
+	#[test_only]
+	use std::unit_test::assert_eq;
 
-    public struct HabitList has drop {
-        habits: vector<Habit>,
-    }
+	public struct Habit has copy, drop
+	{
+		name: String,
+		completed: bool,
+	}
 
-    public fun new_habit(name: String): Habit {
-        Habit {
-            name,
-            completed: false,
-        }
-    }
+	public fun new_habit(name: String): Habit
+	{
+		Habit
+		{
+			name,
+			completed: false,
+		}
+	}
 
-    public fun make_habit(name_bytes: vector<u8>): Habit {
-        let name = string::utf8(name_bytes);
-        new_habit(name)
-    }
+	public struct HabitList has drop
+	{
+		habits: vector<Habit>,
+	}
 
-    public fun empty_list(): HabitList {
-        HabitList {
-            habits: vector::empty(),
-        }
-    }
+	public fun empty_list(): HabitList
+	{
+		HabitList
+		{
+			habits: vector::empty<Habit>(),
+		}
+	}
 
-    public fun add_habit(list: &mut HabitList, habit: Habit) {
-        vector::push_back(&mut list.habits, habit);
-    }
+	public fun add_habit(list: &mut HabitList, habit: Habit)
+	{
+		vector::push_back(&mut list.habits, habit);
+	}
 
-    public fun complete_habit(list: &mut HabitList, index: u64) {
-        let len = vector::length(&list.habits);
-        if (index < len) {
-            let habit = vector::borrow_mut(&mut list.habits, index);
-            habit.completed = true;
-        }
-    }
+	public fun remove_habit_last(list: &mut HabitList)
+	{
+		vector::pop_back(&mut list.habits);
+	}
 
-    // Note: assert! is a built-in macro in Move 2024 - no import needed!
+	public fun complete_habit(list: &mut HabitList, index: u64)
+	{
+		let length = vector::length(&list.habits);
+		if (index < length)
+		{
+			let habit_ref = vector::borrow_mut(&mut list.habits, index);
+			habit_ref.completed = true;
+		}
+		else
+		{
+			// Handle error: index out of bounds
+			// For now, we will do nothing.
+		}
+	}
 
-    // TODO: Write a test 'test_add_habits' that:
-    // - Creates an empty list
-    // - Adds 1-2 habits
-    // - Checks that the list length is correct
-    // #[test]
-    // fun test_add_habits() {
-    //     // Your code here
-    //     // Use b"Exercise".to_string() to create a String
-    // }
+	public fun make_habit(name_bytes: vector<u8>): Habit
+	{
+		let name: String = utf8(name_bytes);
+		new_habit(name)
+	}
 
-    // TODO: Write a test 'test_complete_habit' that:
-    // - Creates a list and adds a habit
-    // - Completes the habit
-    // - Checks that completed == true
-    // #[test]
-    // fun test_complete_habit() {
-    //     // Your code here
-    // }
-}
+	#[test]
+	public fun test_add_habits()
+	{
+		let mut habit_list: HabitList = empty_list();
+		let habit1: Habit = make_habit(b"Writing Tests");
+		let habit2: Habit = make_habit(b"Learning Move");
 
+		add_habit(&mut habit_list, move habit1);
+		add_habit(&mut habit_list, move habit2);
+
+		assert_eq!(vector::length(&habit_list.habits), 2);
+	}
+
+	#[test]
+	public fun test_complete_habit()
+	{
+		let mut habit_list: HabitList = empty_list();
+		let habit: Habit = make_habit(b"Doing some coding");
+
+		add_habit(&mut habit_list, move habit);
+		complete_habit(&mut habit_list, 0);
+
+		let completed_habit = vector::borrow(&habit_list.habits, 0);
+
+		assert_eq!(completed_habit.completed, true);
+	}
+
+}	
