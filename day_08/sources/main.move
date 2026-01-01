@@ -1,26 +1,45 @@
-/// DAY 8: New Module & Simple Task Struct
-/// 
-/// Today you will:
-/// 1. Start a new project: Task Bounty Board
-/// 2. Create a Task struct
-/// 3. Write a constructor function
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   day_08                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abakirca <ahmetbakircan@gmail.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*   Created: 2026/01/01 19:03:55 by abakirca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-module challenge::day_08 {
-    use std::string::String;
+module challenge::day_08
+{
+	use std::string::{String, utf8};
 
-    // TODO: Define a struct called 'Task' with:
-    // - title: String
-    // - reward: u64
-    // - done: bool
-    // Add 'copy' and 'drop' abilities
-    // public struct Task has copy, drop {
-    //     // Your fields here
-    // }
+	#[test_only]
+	use std::unit_test::assert_eq;
 
-    // TODO: Write a constructor function 'new_task'
-    // that takes title and reward, returns a Task with done = false
-    // public fun new_task(title: String, reward: u64): Task {
-    //     // Your code here
-    // }
+	public struct Task has copy, drop
+	{
+		title: String,
+		reward: u64,
+		done: bool,
+	}
+
+	public fun new_task(title: String, reward: u64): Task
+	{
+		Task
+		{
+			title,
+			reward,
+			done: false,
+		}
+	}
+
+	#[test]
+	public fun test_task()
+	{
+		let task = new_task(utf8(b"Defeat Femto"), 1000);
+		assert_eq!(task.title, utf8(b"Defeat Femto"));
+		assert_eq!(task.reward, 1000);
+		assert_eq!(task.done, false);
+	}
 }
-
