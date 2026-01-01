@@ -1,40 +1,75 @@
-/// DAY 9: Enums & TaskStatus
-/// 
-/// Today you will:
-/// 1. Learn about enums
-/// 2. Replace bool with an enum
-/// 3. Use match expressions
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   day_09                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abakirca <ahmetbakircan@gmail.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*   Created: 2026/01/01 19:12:45 by abakirca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-module challenge::day_09 {
-    use std::string::String;
+module challenge::day_09
+{
+	use std::string::{String, utf8};
 
-    // Copy Task struct from day_08, but we'll update it
+	#[test_only]
+	use std::unit_test::assert_eq;
 
-    // TODO: Define an enum called 'TaskStatus' with two variants:
-    // - Open
-    // - Completed
-    // Add 'copy' and 'drop' abilities
-    // public enum TaskStatus has copy, drop {
-    //     Open,
-    //     Completed,
-    // }
+	public struct Task has copy, drop
+	{
+		title: String,
+		reward: u64,
+		status: TaskStatus,
+	}
 
-    // TODO: Update Task struct to use TaskStatus instead of done: bool
-    // public struct Task has copy, drop {
-    //     title: String,
-    //     reward: u64,
-    //     status: TaskStatus,  // Changed from done: bool
-    // }
+	public enum TaskStatus has copy, drop
+	{
+		Open,
+		Completed,
+	}
 
-    // TODO: Update new_task to set status = TaskStatus::Open
-    // public fun new_task(title: String, reward: u64): Task {
-    //     // Your code here
-    // }
+	public fun is_open(task: &Task): bool
+	{
+		if (task.status == TaskStatus::Open)
+			true
+		else
+			false
+	}
 
-    // TODO: Write a function 'is_open' that checks if task.status == TaskStatus::Open
-    // public fun is_open(task: &Task): bool {
-    //     // Your code here
-    //     // Hint: task.status == TaskStatus::Open
-    // }
+	public fun new_task(title: String, reward: u64): Task
+	{
+		Task
+		{
+			title,
+			reward,
+			status: TaskStatus::Open,
+		}
+	}
+
+	#[test]
+	public fun test_task_open()
+	{
+		let task = new_task(utf8(b"Defeat Femto"), 1000);
+
+		assert_eq!(task.title, utf8(b"Defeat Femto"));
+		assert_eq!(task.reward, 1000);
+		assert_eq!(is_open(&task), true);
+	}
+
+	#[test]
+	public fun test_task_completed()
+	{
+		let completed_task = Task
+		{
+			title: utf8(b"Rescue Casca"),
+			reward: 500,
+			status: TaskStatus::Completed,
+		};
+
+		assert_eq!(completed_task.title, utf8(b"Rescue Casca"));
+		assert_eq!(completed_task.reward, 500);
+		assert_eq!(is_open(&completed_task), false);
+	}
 }
-
