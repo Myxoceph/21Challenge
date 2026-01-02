@@ -1,51 +1,106 @@
-/// DAY 10: Visibility Modifiers (Public vs Private Functions)
-/// 
-/// Today you will:
-/// 1. Learn about visibility modifiers (public vs private)
-/// 2. Design a public API
-/// 3. Write a function to complete tasks
-///
-/// Note: You can copy code from day_09/sources/solution.move if needed
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   day_10                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abakirca <ahmetbakircan@gmail.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*   Created: 2026/01/02 19:48:54 by abakirca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-module challenge::day_10 {
-    use std::string::String;
+module challenge::day_10
+{
+	use std::string::{String, utf8};
 
-    // Copy from day_09: TaskStatus enum and Task struct
-    public enum TaskStatus has copy, drop {
-        Open,
-        Completed,
-    }
+	#[test_only]
+	use std::unit_test::assert_eq;
 
-    public struct Task has copy, drop {
-        title: String,
-        reward: u64,
-        status: TaskStatus,
-    }
+	public struct Task has copy, drop
+	{
+		title: String,
+		reward: u64,
+		status: TaskStatus,
+	}
 
-    public fun new_task(title: String, reward: u64): Task {
-        Task {
-            title,
-            reward,
-            status: TaskStatus::Open,
-        }
-    }
+	public enum TaskStatus has copy, drop
+	{
+		Open,
+		Completed,
+	}
 
-    public fun is_open(task: &Task): bool {
-        task.status == TaskStatus::Open
-    }
+	public fun is_open(task: &Task): bool
+	{
+		if (task.status == TaskStatus::Open)
+			true
+		else
+			false
+	}
 
-    // TODO: Write a public function 'complete_task' that:
-    // - Takes task: &mut Task
-    // - Sets task.status = TaskStatus::Completed
-    // This should be public so users can call it
-    // public fun complete_task(task: &mut Task) {
-    //     // Your code here
-    // }
+	public fun new_task(title: String, reward: u64): Task
+	{
+		Task
+		{
+			title,
+			reward,
+			status: TaskStatus::Open,
+		}
+	}
 
-    // TODO: (Optional) Write a private helper function
-    // Private functions use 'fun' instead of 'public fun'
-    // They can only be called from within the same module
-    // BONUS: Add a public function that calls your private helper
-    //        (e.g. 'has_valid_reward' that internally calls 'internal_helper')
+	public fun complete_task(task: &mut Task)
+	{
+		task.status = TaskStatus::Completed;
+	}
+
+	public fun get_reward(task: &Task): u64
+	{
+		task.reward
+	}
+
+	fun change_reward(task: &mut Task, new_reward: u64)
+	{
+		task.reward = new_reward;
+	}
+
+	public fun change_allow_reward(task: &mut Task, new_reward: u64)
+	{
+		change_reward(task, new_reward);
+		complete_task(task);
+	}
+
+	#[test]
+	public fun test_complete_task()
+	{
+		let mut task = new_task(utf8(b"Find the Holy Grail"), 300);
+		assert_eq!(is_open(&task), true);
+		change_allow_reward(&mut task, 500);
+		assert_eq!(is_open(&task), false);
+	}
 }
 
+module challenge::day_10_tests
+{
+	use challenge::day_10::{new_task, is_open, complete_task, change_reward, get_reward};
+	use std::string::utf8;
+	#[test_only]
+	use std::unit_test::assert_eq;
+
+	#[test]
+	public fun test_complete_task()
+	{
+		let mut task = new_task(utf8(b"Find the Holy Grail"), 300);
+		assert_eq!(is_open(&task), true);
+		complete_task(&mut task);
+		assert_eq!(is_open(&task), false);
+	}
+
+	#[test]
+	public fun test_change_reward()
+	{
+		let mut task = new_task(utf8(b"Collect 100 Herbs"), 150);
+		assert_eq!(get_reward(&task), 150);
+		change_reward(&mut task, 200); // cannot do this because change_reward is not public
+		assert_eq!(get_reward(&task), 200);
+	}
+}
