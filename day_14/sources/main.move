@@ -1,3 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   day_14                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: abakirca <ahmetbakircan@gmail.com>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*                                                     #+#    #+#             */
+/*   Created: 2026/01/09 23:31:53 by abakirca         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+
 /// DAY 14: Tests for Bounty Board
 /// 
 /// Today you will:
@@ -82,27 +95,48 @@ module challenge::day_14 {
         count
     }
 
-    // Note: assert! is a built-in macro in Move 2024 - no import needed!
+	#[test]
+	public fun test_create_board_and_add_task()
+	{
+		let owner = @0x1;
+		let mut board = new_board(owner);
+		let task1 = new_task(string::utf8("Slay the dragon"), 100);
+		add_task(&mut board, task1);
 
-    // TODO: Write at least 3 tests:
-    // 
-    // Test 1: test_create_board_and_add_task
-    // - Create a board with an owner
-    // - Add a task
-    // - Verify the task was added
-    // 
-    // Test 2: test_complete_task
-    // - Create board, add tasks
-    // - Complete a task
-    // - Verify completed_count is correct
-    // 
-    // Test 3: test_total_reward
-    // - Create board, add multiple tasks with different rewards
-    // - Verify total_reward is correct
-    // 
-    // #[test]
-    // fun test_create_board_and_add_task() {
-    //     // Your code here
-    // }
+		assert_eq!(vector::length(&board.tasks), 1);
+		let added_task = vector::borrow(&board.tasks, 0);
+		assert_eq!(added_task.title, string::utf8("Slay the dragon"));
+		assert_eq!(added_task.reward, 100);
+		assert_eq!(added_task.status, TaskStatus::Open);
+	}
+
+	#[test]
+	public fun test_complete_task()
+	{
+		let owner = @0x1;
+		let mut board = new_board(owner);
+		let task1 = new_task(string::utf8("Collect 10 herbs"), 50);
+		let task2 = new_task(string::utf8("Defeat the goblin king"), 150);
+		add_task(&mut board, task1);
+		add_task(&mut board, task2);
+
+		let mut task_to_complete = vector::borrow_mut(&mut board.tasks, 1);
+		complete_task(task_to_complete);
+
+		assert_eq!(completed_count(&board), 1);
+	}
+
+	#[test]
+	public fun test_total_reward()
+	{
+		let owner = @0x1;
+		let mut board = new_board(owner);
+		let task1 = new_task(string::utf8("Find the lost sword"), 200);
+		let task2 = new_task(string::utf8("Rescue the villager"), 150);
+		let task3 = new_task(string::utf8("Explore the cave"), 100);
+		add_task(&mut board, task1);
+		add_task(&mut board, task2);
+		add_task(&mut board, task3);
+		assert_eq!(total_reward(&board), 450);
+	}
 }
-
